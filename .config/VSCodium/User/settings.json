@@ -1,0 +1,12 @@
+{
+    "ansible.lightspeed.enabled": false,
+    "ansibleVault.keyFile": "~/.vlt",
+    "explorer.compactFolders": false,
+    "redhat.telemetry.enabled": false,
+    "telemetry.telemetryLevel": "off",
+    "window.commandCenter": false,
+    "window.menuBarVisibility": "compact",
+    "workbench.colorTheme": "Bearded Theme Monokai Reversed",
+    "workbench.iconTheme": "bearded-icons",
+    "workbench.layoutControl.enabled": false
+}

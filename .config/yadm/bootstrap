@@ -1,0 +1,139 @@
+#!/bin/bash
+set -o errexit
+
+[ $(id -u) -eq 0 ] && { echo "You should not run this as root user"; exit 1; }
+
+### Install VSCodium Repository
+curl https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
+  | sudo tee /etc/apt/keyrings/vscodium-archive-keyring.gpg
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/vscodium.sources
+Types: deb
+URIs: https://download.vscodium.com/debs
+Suites: vscodium
+Components: main
+Architectures: amd64 arm64
+Signed-by: /etc/apt/keyrings/vscodium-archive-keyring.gpg
+EOF
+
+### Install Mozilla Repostitory
+curl https://packages.mozilla.org/apt/repo-signing-key.gpg \
+  | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/mozilla.sources
+Types: deb
+URIs: https://packages.mozilla.org/apt
+Suites: mozilla
+Components: main
+Architectures: amd64
+Signed-by: /etc/apt/keyrings/packages.mozilla.org.asc
+EOF
+
+cat << EOF | sudo tee /etc/apt/preferences.d/mozilla
+Package: *
+Pin: origin packages.mozilla.org
+Pin-Priority: 1000
+EOF
+
+### Install Kubernetes repository
+curl -L https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key \
+  | sudo tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
+Types: deb
+URIs: https://pkgs.k8s.io/core:/stable:/v1.33/deb/
+Suites: /
+Signed-By: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+EOF
+
+### Install Helm Repository
+curl -L https://baltocdn.com/helm/signing.asc \
+  | sudo tee /etc/apt/keyrings/helm.gpg
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
+Types: deb
+URIs: https://baltocdn.com/helm/stable/debian/
+Suites: all
+Components: main
+Signed-By: /etc/apt/keyrings/helm.gpg
+EOF
+
+### Install Docker Repository
+curl -L https://download.docker.com/linux/debian/gpg \
+  | sudo tee /etc/apt/keyrings/docker.asc
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/docker.sources
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: trixie
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt-get update -y &&
+sudo apt-get install --yes --no-install-recommends \
+  lightdm \
+  gnome-shell \
+  gnome-terminal \
+  gnome-session \
+  gnome-tweaks \
+  gnome-remote-desktop \
+  gnome-shell-extension-manager \
+  gnome-shell-extension-blur-my-shell \
+  gnome-shell-extension-drive-menu \
+  gnome-shell-extension-appindicator \
+  libgnome-menu-3-dev \
+  gir1.2-gmenu-3.0 \
+  network-manager \
+  network-manager-gnome \
+  xserver-xorg-core \
+  xserver-xorg-input-libinput \
+  firefox-devedition \
+  firefox-devedition-l10n-ru \
+  thunderbird \
+  thunderbird-l10n-ru \
+  codium \
+  kubectl \
+  helm \
+  python3-venv \
+  pipx &&
+
+[ -f /etc/network/interfaces ] && sudo mv /etc/network/interfaces /etc/network/interfaces.bak && sudo systemctl restart NetworkManager
+
+pipx ensurepath \
+  && pipx install ansible-core \
+  && pipx inject --include-apps ansible-core ansible-lint \
+  && pipx inject ansible-core argcomplete \
+  && sudo activate-global-python-argcomplete
+
+CODIUM_EXTENSIONS=(ms-ceintl.vscode-language-pack-ru
+redhat.vscode-yaml
+beardedbear.beardedtheme
+beardedbear.beardedicons
+redhat.ansible
+)
+
+CODIUM_EXTERNAL_EXTENSIONS=(
+  https://github.com/ipierre1/ansible-vault-vscode/releases/download/v1.0.12/ansible-vault-vscode-1.0.12.vsix
+)
+
+for ext in ${CODIUM_EXTENSIONS[@]}
+do
+    codium --install-extension $ext
+done
+
+for ext_url in ${CODIUM_EXTERNAL_EXTENSIONS[@]}
+do
+    [ ! -f "/tmp/$(basename $ext_url)" ] && curl --location $ext_url --output /tmp/$(basename $ext_url)
+    codium --install-extension /tmp/$(basename $ext_url)
+done
+
+echo 'H4sICKg6oGgAA3NldHRpbmdzLmpzb24AdZA9T8MwEIb3/oooM5idsZU6wYJQ90v8hli5+KLzpSVC
+8NtxIASRCk/W+Xk/zm+7Ip+SYgoVw3F4aS0NgHeIlCe+vC8a4oSbP+CJRjbXYToGRkbKjzt3ZisX
+Cq8Di0JdLf1AtR2FPTRtvBS+JXMGRg/T6Z/I3/f19oAzeI6VpvnJvITo5TIn9hT9AdGgG6cF6RHH
+Pekp5FUCB5tmp6Xp6ibaVYh1mw3zKs9tDp6xPUg9fPE1KB4lSkeheMp9NOXmV+pQS1zF1bf4dh6m
+a5ZpktEOEk2Ft5+xe/8E40HfPKsBAAA=' | base64 -d | gunzip | tee ~/.config/VSCodium/User/settings.json
+
+kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl \
+  && helm completion bash | sudo tee /etc/bash_completion.d/helm \
+  && register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
