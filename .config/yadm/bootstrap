@@ -82,6 +82,7 @@ sudo apt-get install --yes --no-install-recommends \
   gnome-shell-extension-blur-my-shell \
   gnome-shell-extension-drive-menu \
   gnome-shell-extension-appindicator \
+  dconf-cli \
   libgnome-menu-3-dev \
   gir1.2-gmenu-3.0 \
   network-manager \
@@ -92,6 +93,11 @@ sudo apt-get install --yes --no-install-recommends \
   firefox-devedition-l10n-ru \
   thunderbird \
   thunderbird-l10n-ru \
+  docker-ce \
+  docker-ce-cli \
+  containerd.io \
+  docker-buildx-plugin \
+  docker-compose-plugin \
   codium \
   kubectl \
   helm \
@@ -99,6 +105,7 @@ sudo apt-get install --yes --no-install-recommends \
   pipx &&
 
 [ -f /etc/network/interfaces ] && sudo mv /etc/network/interfaces /etc/network/interfaces.bak && sudo systemctl restart NetworkManager
+[ -f ~/.config/dconf/user.keyfile ] && dconf load / < .config/dconf/user.keyfile
 
 pipx ensurepath \
   && pipx install ansible-core \
@@ -128,12 +135,7 @@ do
     codium --install-extension /tmp/$(basename $ext_url)
 done
 
-echo 'H4sICKg6oGgAA3NldHRpbmdzLmpzb24AdZA9T8MwEIb3/oooM5idsZU6wYJQ90v8hli5+KLzpSVC
-8NtxIASRCk/W+Xk/zm+7Ip+SYgoVw3F4aS0NgHeIlCe+vC8a4oSbP+CJRjbXYToGRkbKjzt3ZisX
-Cq8Di0JdLf1AtR2FPTRtvBS+JXMGRg/T6Z/I3/f19oAzeI6VpvnJvITo5TIn9hT9AdGgG6cF6RHH
-Pekp5FUCB5tmp6Xp6ibaVYh1mw3zKs9tDp6xPUg9fPE1KB4lSkeheMp9NOXmV+pQS1zF1bf4dh6m
-a5ZpktEOEk2Ft5+xe/8E40HfPKsBAAA=' | base64 -d | gunzip | tee ~/.config/VSCodium/User/settings.json
-
 kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl \
   && helm completion bash | sudo tee /etc/bash_completion.d/helm \
   && register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
+

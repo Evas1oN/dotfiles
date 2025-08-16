@@ -8,5 +8,6 @@
     "window.menuBarVisibility": "compact",
     "workbench.colorTheme": "Bearded Theme Monokai Reversed",
     "workbench.iconTheme": "bearded-icons",
-    "workbench.layoutControl.enabled": false
+    "workbench.layoutControl.enabled": false,
+    "workbench.tree.indent": 12,
 }
