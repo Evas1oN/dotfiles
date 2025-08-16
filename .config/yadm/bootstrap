@@ -118,6 +118,7 @@ sudo apt-get install --yes --no-install-recommends \
 
 [ -f /etc/network/interfaces ] && sudo mv /etc/network/interfaces /etc/network/interfaces.bak && sudo systemctl restart NetworkManager
 [ -f ~/.config/dconf/user.keyfile ] && dconf load / < .config/dconf/user.keyfile
+sudo usermod -aG docker $(id --user --name)
 
 pipx ensurepath \
   && pipx install ansible-core \
