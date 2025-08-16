@@ -74,7 +74,7 @@ EOF
 curl -L https://dbeaver.io/debs/dbeaver.gpg.key \
   | sudo tee /etc/apt/keyrings/dbeaver.gpg.key
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
+cat << EOF | sudo tee /etc/apt/sources.list.d/dbeaver.sources
 Types: deb
 URIs: https://dbeaver.io/debs/dbeaver-ce
 Suites: /
@@ -151,4 +151,4 @@ kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl \
   && helm completion bash | sudo tee /etc/bash_completion.d/helm \
   && register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
 
-systemctl enable --now gdm3
+sudo systemctl enable --now gdm3
