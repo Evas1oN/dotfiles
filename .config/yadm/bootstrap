@@ -3,7 +3,7 @@ set -o errexit
 
 [ $(id -u) -eq 0 ] && { echo "You should not run this as root user"; exit 1; }
 
-### Install VSCodium Repository
+### Install VSCodium repository
 curl https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
   | sudo tee /etc/apt/keyrings/vscodium-archive-keyring.gpg
 
@@ -46,7 +46,7 @@ Suites: /
 Signed-By: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 EOF
 
-### Install Helm Repository
+### Install Helm repository
 curl -L https://baltocdn.com/helm/signing.asc \
   | sudo tee /etc/apt/keyrings/helm.gpg
 
@@ -58,7 +58,7 @@ Components: main
 Signed-By: /etc/apt/keyrings/helm.gpg
 EOF
 
-### Install Docker Repository
+### Install Docker repository
 curl -L https://download.docker.com/linux/debian/gpg \
   | sudo tee /etc/apt/keyrings/docker.asc
 
@@ -68,6 +68,17 @@ URIs: https://download.docker.com/linux/debian
 Suites: trixie
 Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+### Install DbBeaver repository
+curl -L https://dbeaver.io/debs/dbeaver.gpg.key \
+  | sudo tee /etc/apt/keyrings/dbeaver.gpg.key
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
+Types: deb
+URIs: https://dbeaver.io/debs/dbeaver-ce
+Suites: /
+Signed-By: /etc/apt/keyrings/dbeaver.gpg.key
 EOF
 
 sudo apt-get update -y &&
@@ -93,6 +104,7 @@ sudo apt-get install --yes --no-install-recommends \
   firefox-devedition-l10n-ru \
   thunderbird \
   thunderbird-l10n-ru \
+  dbeaver-ce \
   docker-ce \
   docker-ce-cli \
   containerd.io \
