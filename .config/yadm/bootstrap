@@ -72,7 +72,7 @@ EOF
 
 sudo apt-get update -y &&
 sudo apt-get install --yes --no-install-recommends \
-  lightdm \
+  gdm3 \
   gnome-shell \
   gnome-terminal \
   gnome-session \
@@ -139,3 +139,4 @@ kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl \
   && helm completion bash | sudo tee /etc/bash_completion.d/helm \
   && register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
 
+systemctl enable --now gdm3
