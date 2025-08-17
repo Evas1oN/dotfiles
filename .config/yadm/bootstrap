@@ -87,6 +87,7 @@ sudo apt-get install --yes --no-install-recommends \
   gnome-shell \
   gnome-terminal \
   gnome-session \
+  gnome-session-xsession \
   gnome-tweaks \
   gnome-remote-desktop \
   gnome-shell-extension-manager \
