@@ -84,6 +84,30 @@ Suites: /
 Signed-By: /etc/apt/keyrings/dbeaver.gpg.key
 EOF
 
+### Install Lens repository
+curl -fsSL https://downloads.k8slens.dev/keys/gpg \
+  | sudo tee /etc/apt/keyrings/lens.asc
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/lens.sources
+Types: deb
+URIs: https://downloads.k8slens.dev/apt/debian
+Suites: stable
+Components: main
+Signed-By: /etc/apt/keyrings/lens.asc
+EOF
+
+### Install VirtualBox repository
+curl -L https://www.virtualbox.org/download/oracle_vbox_2016.asc \
+  | sudo gpg --yes --output /etc/apt/keyrings/virtualbox.asc --dearmor
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/virtualbox.sources
+Types: deb
+URIs: https://download.virtualbox.org/virtualbox/debian
+Suites: trixie
+Components: contrib non-free
+Signed-By: /etc/apt/keyrings/virtualbox.asc
+EOF
+
 sudo apt-get update -y &&
 sudo apt-get install --yes --no-install-recommends \
   gdm3 \
@@ -119,6 +143,7 @@ sudo apt-get install --yes --no-install-recommends \
   kubectl \
   helm \
   python3-venv \
+  lens \
   pipx &&
 
 [ -f /etc/network/interfaces ] && sudo mv /etc/network/interfaces /etc/network/interfaces.bak && sudo systemctl restart NetworkManager

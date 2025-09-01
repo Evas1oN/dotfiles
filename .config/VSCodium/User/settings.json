@@ -10,4 +10,6 @@
     "workbench.iconTheme": "bearded-icons",
     "workbench.layoutControl.enabled": false,
     "workbench.tree.indent": 12,
+    "containers.containerClient": "com.microsoft.visualstudio.containers.docker",
+    "containers.orchestratorClient": "com.microsoft.visualstudio.orchestrators.dockercompose",
 }
