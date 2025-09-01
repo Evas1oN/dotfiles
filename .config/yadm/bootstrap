@@ -3,8 +3,7 @@ set -o errexit
 
 [ $(id -u) -eq 0 ] && { echo "You should not run this as root user"; exit 1; }
 
-sudo apt update -y 
-&& sudo apt install -y curl
+sudo apt update -y && sudo apt install -y curl
 
 ### Install VSCodium repository
 curl https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
