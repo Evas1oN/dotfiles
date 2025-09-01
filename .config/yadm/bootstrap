@@ -3,7 +3,10 @@ set -o errexit
 
 [ $(id -u) -eq 0 ] && { echo "You should not run this as root user"; exit 1; }
 
-### Install VSCodium Repository
+sudo apt update -y 
+&& sudo apt install -y curl
+
+### Install VSCodium repository
 curl https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
   | sudo tee /etc/apt/keyrings/vscodium-archive-keyring.gpg
 
@@ -46,7 +49,7 @@ Suites: /
 Signed-By: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 EOF
 
-### Install Helm Repository
+### Install Helm repository
 curl -L https://baltocdn.com/helm/signing.asc \
   | sudo tee /etc/apt/keyrings/helm.gpg
 
@@ -58,7 +61,7 @@ Components: main
 Signed-By: /etc/apt/keyrings/helm.gpg
 EOF
 
-### Install Docker Repository
+### Install Docker repository
 curl -L https://download.docker.com/linux/debian/gpg \
   | sudo tee /etc/apt/keyrings/docker.asc
 
@@ -70,18 +73,31 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
+### Install DbBeaver repository
+curl -L https://dbeaver.io/debs/dbeaver.gpg.key \
+  | sudo tee /etc/apt/keyrings/dbeaver.gpg.key
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/dbeaver.sources
+Types: deb
+URIs: https://dbeaver.io/debs/dbeaver-ce
+Suites: /
+Signed-By: /etc/apt/keyrings/dbeaver.gpg.key
+EOF
+
 sudo apt-get update -y &&
 sudo apt-get install --yes --no-install-recommends \
-  lightdm \
+  gdm3 \
   gnome-shell \
   gnome-terminal \
   gnome-session \
+  gnome-session-xsession \
   gnome-tweaks \
   gnome-remote-desktop \
   gnome-shell-extension-manager \
   gnome-shell-extension-blur-my-shell \
   gnome-shell-extension-drive-menu \
   gnome-shell-extension-appindicator \
+  dconf-cli \
   libgnome-menu-3-dev \
   gir1.2-gmenu-3.0 \
   network-manager \
@@ -92,6 +108,12 @@ sudo apt-get install --yes --no-install-recommends \
   firefox-devedition-l10n-ru \
   thunderbird \
   thunderbird-l10n-ru \
+  dbeaver-ce \
+  docker-ce \
+  docker-ce-cli \
+  containerd.io \
+  docker-buildx-plugin \
+  docker-compose-plugin \
   codium \
   kubectl \
   helm \
@@ -99,6 +121,8 @@ sudo apt-get install --yes --no-install-recommends \
   pipx &&
 
 [ -f /etc/network/interfaces ] && sudo mv /etc/network/interfaces /etc/network/interfaces.bak && sudo systemctl restart NetworkManager
+[ -f ~/.config/dconf/user.keyfile ] && dconf load / < .config/dconf/user.keyfile
+sudo usermod -aG docker $(id --user --name)
 
 pipx ensurepath \
   && pipx install ansible-core \
@@ -128,12 +152,8 @@ do
     codium --install-extension /tmp/$(basename $ext_url)
 done
 
-echo 'H4sICKg6oGgAA3NldHRpbmdzLmpzb24AdZA9T8MwEIb3/oooM5idsZU6wYJQ90v8hli5+KLzpSVC
-8NtxIASRCk/W+Xk/zm+7Ip+SYgoVw3F4aS0NgHeIlCe+vC8a4oSbP+CJRjbXYToGRkbKjzt3ZisX
-Cq8Di0JdLf1AtR2FPTRtvBS+JXMGRg/T6Z/I3/f19oAzeI6VpvnJvITo5TIn9hT9AdGgG6cF6RHH
-Pekp5FUCB5tmp6Xp6ibaVYh1mw3zKs9tDp6xPUg9fPE1KB4lSkeheMp9NOXmV+pQS1zF1bf4dh6m
-a5ZpktEOEk2Ft5+xe/8E40HfPKsBAAA=' | base64 -d | gunzip | tee ~/.config/VSCodium/User/settings.json
-
 kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl \
   && helm completion bash | sudo tee /etc/bash_completion.d/helm \
   && register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
+
+sudo systemctl enable --now gdm3
