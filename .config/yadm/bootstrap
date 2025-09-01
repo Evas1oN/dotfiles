@@ -7,7 +7,7 @@ sudo apt update -y && sudo apt install --yes --no-install-recommends curl gpg
 
 ### Install VSCodium repository
 curl https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
-  | sudo sudo gpg --yes --dearmor --output /etc/apt/keyrings/vscodium-archive-keyring.gpg
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/vscodium-archive-keyring.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/vscodium.sources
 Types: deb
@@ -20,7 +20,7 @@ EOF
 
 ### Install Mozilla Repostitory
 curl https://packages.mozilla.org/apt/repo-signing-key.gpg \
-  | sudo sudo gpg --yes --dearmor --output /etc/apt/keyrings/packages.mozilla.org.asc
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/packages.mozilla.org.asc
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/mozilla.sources
 Types: deb
@@ -39,7 +39,7 @@ EOF
 
 ### Install Kubernetes repository
 curl -L https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key \
-  | sudo sudo gpg --yes --dearmor --output /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
 Types: deb
@@ -50,7 +50,7 @@ EOF
 
 ### Install Helm repository
 curl -L https://baltocdn.com/helm/signing.asc \
-  | sudo sudo gpg --yes --dearmor --output /etc/apt/keyrings/helm.gpg
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/helm.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
 Types: deb
@@ -62,7 +62,7 @@ EOF
 
 ### Install Docker repository
 curl -L https://download.docker.com/linux/debian/gpg \
-  | sudo sudo gpg --yes --dearmor --output /etc/apt/keyrings/docker.asc
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/docker.asc
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/docker.sources
 Types: deb
