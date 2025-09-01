@@ -6,8 +6,8 @@ set -o errexit
 sudo apt update -y && sudo apt install --yes --no-install-recommends curl gpg
 
 ### Install VSCodium repository
-curl https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/vscodium-archive-keyring.gpg
+curl -fsSL https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/vscodium.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/vscodium.sources
 Types: deb
@@ -15,12 +15,12 @@ URIs: https://download.vscodium.com/debs
 Suites: vscodium
 Components: main
 Architectures: amd64 arm64
-Signed-by: /etc/apt/keyrings/vscodium-archive-keyring.gpg
+Signed-by: /etc/apt/keyrings/vscodium.gpg
 EOF
 
 ### Install Mozilla Repostitory
-curl https://packages.mozilla.org/apt/repo-signing-key.gpg \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/packages.mozilla.org.asc
+curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg \
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/mozilla.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/mozilla.sources
 Types: deb
@@ -28,7 +28,7 @@ URIs: https://packages.mozilla.org/apt
 Suites: mozilla
 Components: main
 Architectures: amd64
-Signed-by: /etc/apt/keyrings/packages.mozilla.org.asc
+Signed-by: /etc/apt/keyrings/mozilla.gpg
 EOF
 
 cat << EOF | sudo tee /etc/apt/preferences.d/mozilla
@@ -38,18 +38,18 @@ Pin-Priority: 1000
 EOF
 
 ### Install Kubernetes repository
-curl -L https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key \
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/kubernetes.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
 Types: deb
 URIs: https://pkgs.k8s.io/core:/stable:/v1.33/deb/
 Suites: /
-Signed-By: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+Signed-By: /etc/apt/keyrings/kubernetes.gpg
 EOF
 
 ### Install Helm repository
-curl -L https://baltocdn.com/helm/signing.asc \
+curl -fsSL https://baltocdn.com/helm/signing.asc \
   | sudo gpg --yes --dearmor --output /etc/apt/keyrings/helm.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
@@ -61,50 +61,50 @@ Signed-By: /etc/apt/keyrings/helm.gpg
 EOF
 
 ### Install Docker repository
-curl -L https://download.docker.com/linux/debian/gpg \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/docker.asc
+curl -fsSL https://download.docker.com/linux/debian/gpg \
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/docker.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/docker.sources
 Types: deb
 URIs: https://download.docker.com/linux/debian
 Suites: trixie
 Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
+Signed-By: /etc/apt/keyrings/docker.gpg
 EOF
 
 ### Install DbBeaver repository
-curl -L https://dbeaver.io/debs/dbeaver.gpg.key \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/dbeaver.gpg.key
+curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key \
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/dbeaver.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/dbeaver.sources
 Types: deb
 URIs: https://dbeaver.io/debs/dbeaver-ce
 Suites: /
-Signed-By: /etc/apt/keyrings/dbeaver.gpg.key
+Signed-By: /etc/apt/keyrings/dbeaver.gpg
 EOF
 
 ### Install Lens repository
 curl -fsSL https://downloads.k8slens.dev/keys/gpg \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/lens.asc
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/lens.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/lens.sources
 Types: deb
 URIs: https://downloads.k8slens.dev/apt/debian
 Suites: stable
 Components: main
-Signed-By: /etc/apt/keyrings/lens.asc
+Signed-By: /etc/apt/keyrings/lens.gpg
 EOF
 
 ### Install VirtualBox repository
-curl -L https://www.virtualbox.org/download/oracle_vbox_2016.asc \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/virtualbox.asc
+curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc \
+  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/virtualbox.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/virtualbox.sources
 Types: deb
 URIs: https://download.virtualbox.org/virtualbox/debian
 Suites: trixie
 Components: contrib non-free
-Signed-By: /etc/apt/keyrings/virtualbox.asc
+Signed-By: /etc/apt/keyrings/virtualbox.gpg
 EOF
 
 sudo apt-get update -y &&
@@ -142,8 +142,7 @@ sudo apt-get install --yes --no-install-recommends \
   kubectl \
   helm \
   python3-venv \
-  lens \
-  pipx &&
+  pipx
 
 [ -f /etc/network/interfaces ] && sudo mv /etc/network/interfaces /etc/network/interfaces.bak && sudo systemctl restart NetworkManager
 [ -f ~/.config/dconf/user.keyfile ] && dconf load / < .config/dconf/user.keyfile
