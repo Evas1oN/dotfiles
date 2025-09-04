@@ -52,7 +52,7 @@ EOF
 curl -fsSL https://baltocdn.com/helm/signing.asc \
   | sudo gpg --yes --dearmor --output /etc/apt/keyrings/helm.gpg
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
+cat << EOF | sudo tee /etc/apt/sources.list.d/helm.sources
 Types: deb
 URIs: https://baltocdn.com/helm/stable/debian/
 Suites: all
