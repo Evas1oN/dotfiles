@@ -49,7 +49,7 @@ Signed-By: /etc/apt/keyrings/kubernetes.gpg
 EOF
 
 ### Install Helm repository
-curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey 
+curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey \
   | sudo gpg --dearmor --yes --output /etc/apt/keyrings/helm.gpg
 
 cat << EOF | sudo tee /etc/apt/sources.list.d/helm.sources
