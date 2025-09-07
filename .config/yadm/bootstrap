@@ -183,4 +183,5 @@ kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl \
   && helm completion bash | sudo tee /etc/bash_completion.d/helm \
   && register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
 
-sudo systemctl enable --now gdm3
+LC_ALL=en_US xdg-user-dirs-update
+sudo systemctl enable gdm3
