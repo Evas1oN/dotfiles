@@ -1,58 +1,75 @@
 #!/bin/bash
 set -o errexit
 
-[ $(id -u) -eq 0 ] && { echo "You should not run this as root user"; exit 1; }
+[ $(id -u) -eq 0 ] && {
+	echo "You should not run this as root user"
+	exit 1
+}
 
-sudo apt update -y && sudo apt install --yes --no-install-recommends curl gpg
+. /etc/os-release
 
-### Install VSCodium repository
-curl -fsSL https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/vscodium.gpg
+echo "APT::Install-Recommends \"false\";" | sudo tee /etc/apt/apt.conf.d/90recommends
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/vscodium.sources
-Types: deb
-URIs: https://download.vscodium.com/debs
-Suites: vscodium
-Components: main
-Architectures: amd64 arm64
-Signed-by: /etc/apt/keyrings/vscodium.gpg
-EOF
+echo "deb http://deb.debian.org/debian ${VERSION_CODENAME}-backports main contrib non-free non-free-firmware" |
+	sudo tee /etc/apt/sources.list.d/${VERSION_CODENAME}-backports.list
 
-### Install Mozilla Repostitory
-curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/mozilla.gpg
+sudo apt update -y && sudo apt install -t trixie-backports -y \
+	curl \
+	gpg \
+	ca-certificates \
+	apt-transport-https
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/mozilla.sources
+curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg | sudo gpg --yes --dearmor --output /etc/apt/keyrings/packages.mozilla.org.gpg
+
+cat <<EOF | sudo tee /etc/apt/sources.list.d/mozilla.sources
 Types: deb
 URIs: https://packages.mozilla.org/apt
 Suites: mozilla
 Components: main
-Architectures: amd64
-Signed-by: /etc/apt/keyrings/mozilla.gpg
+Signed-By: /etc/apt/keyrings/packages.mozilla.org.gpg
 EOF
 
-cat << EOF | sudo tee /etc/apt/preferences.d/mozilla
+cat <<EOF | sudo tee /etc/apt/preferences.d/mozilla
 Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1000
 EOF
 
-### Install Kubernetes repository
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/kubernetes.gpg
+curl -fsSL https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg | sudo gpg --dearmor --yes --output /etc/apt/keyrings/vscodium-archive-keyring.gpg
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
+cat <<EOF | sudo tee /etc/apt/sources.list.d/vscodium.sources
 Types: deb
-URIs: https://pkgs.k8s.io/core:/stable:/v1.33/deb/
-Suites: /
-Signed-By: /etc/apt/keyrings/kubernetes.gpg
+URIs: https://download.vscodium.com/debs
+Suites: vscodium
+Components: main
+Architectures: amd64
+Signed-by: /etc/apt/keyrings/vscodium-archive-keyring.gpg
 EOF
 
-### Install Helm repository
-curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey \
-  | sudo gpg --dearmor --yes --output /etc/apt/keyrings/helm.gpg
+curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg --yes --dearmor --output /etc/apt/keyrings/oracle-virtualbox-2016.gpg
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/helm.sources
+cat <<EOF | sudo tee /etc/apt/sources.list.d/virtualbox.sources
+Types: deb
+URIs: https://download.virtualbox.org/virtualbox/debian
+Suites: ${VERSION_CODENAME}
+Components: contrib
+Architectures: amd64
+Signed-By: /etc/apt/keyrings/oracle-virtualbox-2016.gpg
+EOF
+
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --yes --dearmor --output /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
+Types: deb
+URIs: https://pkgs.k8s.io/core:/stable:/v1.34/deb/
+Suites: /
+Architectures: amd64
+Signed-By: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+EOF
+
+curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | sudo gpg --yes --dearmor --output /etc/apt/keyrings/helm.gpg
+
+cat <<EOF | sudo tee /etc/apt/sources.list.d/helm.sources
 Types: deb
 URIs: https://packages.buildkite.com/helm-linux/helm-debian/any/
 Suites: any
@@ -60,128 +77,131 @@ Components: main
 Signed-By: /etc/apt/keyrings/helm.gpg
 EOF
 
-### Install Docker repository
-curl -fsSL https://download.docker.com/linux/debian/gpg \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/docker.gpg
+curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key | sudo gpg --yes --dearmor --output /etc/apt/keyrings/dbeaver.gpg
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/docker.sources
-Types: deb
-URIs: https://download.docker.com/linux/debian
-Suites: trixie
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.gpg
-EOF
-
-### Install DbBeaver repository
-curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/dbeaver.gpg
-
-cat << EOF | sudo tee /etc/apt/sources.list.d/dbeaver.sources
+cat <<EOF | sudo tee /etc/apt/sources.list.d/dbeaver.sources
 Types: deb
 URIs: https://dbeaver.io/debs/dbeaver-ce
 Suites: /
 Signed-By: /etc/apt/keyrings/dbeaver.gpg
 EOF
 
-### Install Lens repository
-curl -fsSL https://downloads.k8slens.dev/keys/gpg \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/lens.gpg
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --yes --dearmor --output /etc/apt/keyrings/docker.gpg
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/lens.sources
+cat <<EOF | sudo tee /etc/apt/sources.list.d/docker.sources
 Types: deb
-URIs: https://downloads.k8slens.dev/apt/debian
-Suites: stable
-Components: main
-Signed-By: /etc/apt/keyrings/lens.gpg
+URIs: https://download.docker.com/linux/debian
+Suites: ${VERSION_CODENAME}
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.gpg
 EOF
 
-### Install VirtualBox repository
-curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc \
-  | sudo gpg --yes --dearmor --output /etc/apt/keyrings/virtualbox.gpg
+sudo apt update --yes && sudo apt install -t trixie-backports --yes \
+	bash-completion \
+	ca-certificates \
+	codium \
+	containerd.io \
+	curl \
+	dbeaver-ce \
+	dconf-cli \
+	dnsmasq \
+	docker-buildx-plugin \
+	docker-ce \
+	docker-ce-cli \
+	docker-compose-plugin \
+	firefox-devedition \
+	firefox-devedition-l10n-ru \
+	gcc \
+	gdm3 \
+	gir1.2-gmenu-3.0 \
+	git \
+	gnome-remote-desktop \
+	gnome-session \
+	gnome-session-xsession \
+	gnome-shell \
+	gnome-shell-extension-appindicator \
+	gnome-shell-extension-blur-my-shell \
+	gnome-shell-extension-drive-menu \
+	gnome-shell-extension-manager \
+	gnome-terminal \
+	gnome-tweaks \
+	helm \
+	kubectl \
+	libgnome-menu-3-dev \
+	libreoffice-calc \
+	libreoffice-writer \
+	linux-headers-amd64 \
+	linux-image-amd64 \
+	make \
+	nautilus-extension-gnome-terminal \
+	network-manager \
+	network-manager-gnome \
+	perl \
+	pipx \
+	python3-venv \
+	thunderbird \
+	thunderbird-l10n-ru \
+	vboxmanage-bash-completion \
+	virtualbox-7.2 \
+	wget \
+	xserver-xorg-core \
+	xserver-xorg-input-libinput \
+	xserver-xorg-video-radeon \
+	xz-utils
 
-cat << EOF | sudo tee /etc/apt/sources.list.d/virtualbox.sources
-Types: deb
-URIs: https://download.virtualbox.org/virtualbox/debian
-Suites: trixie
-Components: contrib non-free
-Signed-By: /etc/apt/keyrings/virtualbox.gpg
+pipx ensurepath &&
+	pipx install ansible-core &&
+	pipx inject --include-apps ansible-core ansible-lint &&
+	pipx inject ansible-core argcomplete &&
+	sudo activate-global-python-argcomplete
+
+sudo curl -fsSL -o /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-linux-x86_64
+sudo curl -fsSL -o /usr/local/bin/shfmt https://github.com/mvdan/sh/releases/download/v3.12.0/shfmt_v3.12.0_linux_amd64
+sudo chmod +x /usr/local/bin/hadolint /usr/local/bin/shfmt
+
+sudo systemctl disable --now dnsmasq
+
+cat <<EOF | sudo tee /etc/NetworkManager/conf.d/dns.conf
+[main]
+dns=dnsmasq
 EOF
 
-sudo apt-get update -y &&
-sudo apt-get install --yes --no-install-recommends \
-  gdm3 \
-  gnome-shell \
-  gnome-terminal \
-  gnome-session \
-  gnome-session-xsession \
-  gnome-tweaks \
-  gnome-remote-desktop \
-  gnome-shell-extension-manager \
-  gnome-shell-extension-blur-my-shell \
-  gnome-shell-extension-drive-menu \
-  gnome-shell-extension-appindicator \
-  dconf-cli \
-  nautilus-extension-gnome-terminal \
-  libgnome-menu-3-dev \
-  gir1.2-gmenu-3.0 \
-  network-manager \
-  network-manager-gnome \
-  xserver-xorg-core \
-  xserver-xorg-input-libinput \
-  firefox-devedition \
-  firefox-devedition-l10n-ru \
-  thunderbird \
-  thunderbird-l10n-ru \
-  dbeaver-ce \
-  docker-ce \
-  docker-ce-cli \
-  containerd.io \
-  docker-buildx-plugin \
-  docker-compose-plugin \
-  codium \
-  kubectl \
-  helm \
-  python3-venv \
-  pipx
+[ -f /etc/network/interfaces ] &&
+	sudo mv /etc/network/interfaces /etc/network/interfaces.bak &&
+	sudo systemctl restart NetworkManager &&
+	nmcli general reload
 
-[ -f /etc/network/interfaces ] && sudo mv /etc/network/interfaces /etc/network/interfaces.bak && sudo systemctl restart NetworkManager
-[ -f ~/.config/dconf/user.keyfile ] && dconf load / < .config/dconf/user.keyfile
-sudo usermod -aG docker $(id --user --name)
+[ -f ~/.config/dconf/user.keyfile ] &&
+	dconf load / <.config/dconf/user.keyfile
 
-pipx ensurepath \
-  && pipx install ansible-core \
-  && pipx inject --include-apps ansible-core ansible-lint \
-  && pipx inject ansible-core argcomplete \
-  && sudo activate-global-python-argcomplete
+sudo usermod -a -G docker $USER
 
 CODIUM_EXTENSIONS=(ms-ceintl.vscode-language-pack-ru
-redhat.vscode-yaml
-beardedbear.beardedtheme
-beardedbear.beardedicons
-redhat.ansible
-mads-hartmann.bash-ide-vscode
-ms-azuretools.vscode-docker
-ms-azuretools.vscode-containers
+	redhat.vscode-yaml
+	redhat.ansible
+	mads-hartmann.bash-ide-vscode
+	ms-azuretools.vscode-docker
+	ms-azuretools.vscode-containers
+	exiasr.hadolint
+	mkhl.shfmt
 )
 
 CODIUM_EXTERNAL_EXTENSIONS=(
-  https://github.com/ipierre1/ansible-vault-vscode/releases/download/v1.0.12/ansible-vault-vscode-1.0.12.vsix
+	https://github.com/ipierre1/ansible-vault-vscode/releases/download/v1.0.12/ansible-vault-vscode-1.0.12.vsix
 )
 
-for ext in ${CODIUM_EXTENSIONS[@]}
-do
-    codium --install-extension $ext
+for ext in ${CODIUM_EXTENSIONS[@]}; do
+	codium --install-extension $ext
 done
 
-for ext_url in ${CODIUM_EXTERNAL_EXTENSIONS[@]}
-do
-    [ ! -f "/tmp/$(basename $ext_url)" ] && curl --location $ext_url --output /tmp/$(basename $ext_url)
-    codium --install-extension /tmp/$(basename $ext_url)
+for ext_url in ${CODIUM_EXTERNAL_EXTENSIONS[@]}; do
+	[ ! -f "/tmp/$(basename $ext_url)" ] && curl --location $ext_url --output /tmp/$(basename $ext_url)
+	codium --install-extension /tmp/$(basename $ext_url)
 done
 
-kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl \
-  && helm completion bash | sudo tee /etc/bash_completion.d/helm \
-  && register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
+kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl &&
+	helm completion bash | sudo tee /etc/bash_completion.d/helm &&
+	register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
 
-LC_ALL=en_US xdg-user-dirs-update
+echo "export ANSIBLE_VAULT_PASSWORD_FILE=~/.vlt" >> ~/.bashrc
 sudo systemctl enable gdm3
