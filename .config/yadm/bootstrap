@@ -166,11 +166,6 @@ cat <<EOF | sudo tee /etc/NetworkManager/conf.d/dns.conf
 dns=dnsmasq
 EOF
 
-[ -f /etc/network/interfaces ] &&
-	sudo mv /etc/network/interfaces /etc/network/interfaces.bak &&
-	sudo systemctl restart NetworkManager &&
-	nmcli general reload
-
 [ -f ~/.config/dconf/user.keyfile ] &&
 	dconf load / <.config/dconf/user.keyfile
 
@@ -204,4 +199,8 @@ kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl &&
 	register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
 
 echo "export ANSIBLE_VAULT_PASSWORD_FILE=~/.vlt" >> ~/.bashrc
+[ -f /etc/network/interfaces ] &&
+	sudo mv /etc/network/interfaces /etc/network/interfaces.bak &&
+	sudo systemctl restart NetworkManager &&
+	sudo nmcli general reload
 sudo systemctl enable gdm3
