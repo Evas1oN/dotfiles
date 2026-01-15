@@ -123,7 +123,7 @@ sudo apt update --yes && sudo apt install -t trixie-backports --yes \
 	gnome-shell-extension-blur-my-shell \
 	gnome-shell-extension-drive-menu \
 	gnome-shell-extension-manager \
-	gnome-terminal \
+	gnome-console \
 	gnome-tweaks \
 	helm \
 	kubectl \
@@ -133,7 +133,6 @@ sudo apt update --yes && sudo apt install -t trixie-backports --yes \
 	linux-headers-amd64 \
 	linux-image-amd64 \
 	make \
-	nautilus-extension-gnome-terminal \
 	network-manager \
 	network-manager-gnome \
 	perl \
