@@ -106,7 +106,6 @@ sudo apt update --yes && sudo apt install --yes \
 	gnome-console \
 	gnome-remote-desktop \
 	gnome-session \
-	gnome-session-xsession \
 	gnome-shell \
 	gnome-shell-extension-appindicator \
 	gnome-shell-extension-blur-my-shell \
