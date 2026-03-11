@@ -10,7 +10,7 @@ echo "APT::Install-Recommends \"false\";" | sudo tee /etc/apt/apt.conf.d/90recom
 
 sudo apt update -y && sudo apt install gpg curl ca-certificates -y
 
-sed -i 's|trixie|testing|g' /etc/apt/sources.list && apt update -y
+sudo sed -i 's|trixie|testing|g' /etc/apt/sources.list && sudo apt update -y
 
 curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg | sudo gpg --yes --dearmor --output /etc/apt/keyrings/packages.mozilla.org.gpg
 
@@ -116,6 +116,7 @@ sudo apt update --yes && sudo apt install --yes \
 	gnome-software-plugin-deb \
 	gnome-software-plugin-flatpak \
 	gnome-tweaks \
+	gnome-keyring \
 	libgnome-menu-3-dev \
 	libreoffice-calc \
 	libreoffice-writer \
@@ -130,9 +131,9 @@ sudo apt update --yes && sudo apt install --yes \
 	thunderbird \
 	thunderbird-l10n-ru \
 	wget \
-	xserver-xorg-core \
-	xserver-xorg-input-libinput \
-	xserver-xorg-video-radeon \
+	xserver-xorg \
+	mesa-vulkan-drivers \
+	hunspell-ru \
 	xz-utils
 
 sudo curl -fsSL -o /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-linux-x86_64
