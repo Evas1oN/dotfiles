@@ -10,6 +10,8 @@ echo "APT::Install-Recommends \"false\";" | sudo tee /etc/apt/apt.conf.d/90recom
 
 sudo apt update -y && sudo apt install gpg curl ca-certificates -y
 
+sed -i 's|trixie|testing|g' /etc/apt/sources.list && apt update -y
+
 curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg | sudo gpg --yes --dearmor --output /etc/apt/keyrings/packages.mozilla.org.gpg
 
 cat <<EOF | sudo tee /etc/apt/sources.list.d/mozilla.sources
