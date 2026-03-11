@@ -6,18 +6,9 @@ set -o errexit
 	exit 1
 }
 
-. /etc/os-release
-
 echo "APT::Install-Recommends \"false\";" | sudo tee /etc/apt/apt.conf.d/90recommends
 
-echo "deb http://deb.debian.org/debian ${VERSION_CODENAME}-backports main contrib non-free non-free-firmware" |
-	sudo tee /etc/apt/sources.list.d/${VERSION_CODENAME}-backports.list
 
-sudo apt update -y && sudo apt install -t trixie-backports -y \
-	curl \
-	gpg \
-	ca-certificates \
-	apt-transport-https
 
 curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg | sudo gpg --yes --dearmor --output /etc/apt/keyrings/packages.mozilla.org.gpg
 
@@ -51,7 +42,7 @@ curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg -
 cat <<EOF | sudo tee /etc/apt/sources.list.d/virtualbox.sources
 Types: deb
 URIs: https://download.virtualbox.org/virtualbox/debian
-Suites: ${VERSION_CODENAME}
+Suites: trixie
 Components: contrib
 Architectures: amd64
 Signed-By: /etc/apt/keyrings/oracle-virtualbox-2016.gpg
@@ -91,7 +82,7 @@ curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --yes --dearm
 cat <<EOF | sudo tee /etc/apt/sources.list.d/docker.sources
 Types: deb
 URIs: https://download.docker.com/linux/debian
-Suites: ${VERSION_CODENAME}
+Suites: trixie
 Components: stable
 Signed-By: /etc/apt/keyrings/docker.gpg
 EOF
@@ -100,21 +91,17 @@ sudo apt update --yes && sudo apt install -t trixie-backports --yes \
 	bash-completion \
 	ca-certificates \
 	codium \
-	containerd.io \
 	curl \
-	dbeaver-ce \
 	dconf-cli \
 	dnsmasq \
-	docker-buildx-plugin \
-	docker-ce \
-	docker-ce-cli \
-	docker-compose-plugin \
 	firefox-devedition \
 	firefox-devedition-l10n-ru \
+	flatpak \
 	gcc \
 	gdm3 \
 	gir1.2-gmenu-3.0 \
 	git \
+	gnome-console \
 	gnome-remote-desktop \
 	gnome-session \
 	gnome-session-xsession \
@@ -123,10 +110,10 @@ sudo apt update --yes && sudo apt install -t trixie-backports --yes \
 	gnome-shell-extension-blur-my-shell \
 	gnome-shell-extension-drive-menu \
 	gnome-shell-extension-manager \
-	gnome-console \
+	gnome-software \
+	gnome-software-plugin-deb \
+	gnome-software-plugin-flatpak \
 	gnome-tweaks \
-	helm \
-	kubectl \
 	libgnome-menu-3-dev \
 	libreoffice-calc \
 	libreoffice-writer \
@@ -140,50 +127,22 @@ sudo apt update --yes && sudo apt install -t trixie-backports --yes \
 	python3-venv \
 	thunderbird \
 	thunderbird-l10n-ru \
-	vboxmanage-bash-completion \
-	virtualbox-7.2 \
 	wget \
 	xserver-xorg-core \
 	xserver-xorg-input-libinput \
 	xserver-xorg-video-radeon \
 	xz-utils
 
-pipx ensurepath &&
-	pipx install ansible-core &&
-	pipx inject --include-apps ansible-core ansible-lint &&
-	pipx inject ansible-core argcomplete &&
-	sudo activate-global-python-argcomplete
-
 sudo curl -fsSL -o /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-linux-x86_64
 sudo curl -fsSL -o /usr/local/bin/shfmt https://github.com/mvdan/sh/releases/download/v3.12.0/shfmt_v3.12.0_linux_amd64
 sudo chmod +x /usr/local/bin/hadolint /usr/local/bin/shfmt
 
-sudo systemctl disable --now dnsmasq
-
-cat <<EOF | sudo tee /etc/NetworkManager/conf.d/dns.conf
-[main]
-dns=dnsmasq
-EOF
-
-[ -f ~/.config/dconf/user.keyfile ] &&
-	dconf load / <.config/dconf/user.keyfile
-
-sudo usermod -a -G docker $USER
+[ -f ~/.config/dconf/user.keyfile ] && dconf load / < .config/dconf/user.keyfile
 
 CODIUM_EXTENSIONS=(ms-ceintl.vscode-language-pack-ru
-	redhat.vscode-yaml
-	redhat.ansible
-	mads-hartmann.bash-ide-vscode
-	ms-azuretools.vscode-docker
-	ms-azuretools.vscode-containers
 	exiasr.hadolint
 	mkhl.shfmt
 )
-
-CODIUM_EXTERNAL_EXTENSIONS=(
-	https://github.com/ipierre1/ansible-vault-vscode/releases/download/v1.0.12/ansible-vault-vscode-1.0.12.vsix
-)
-
 for ext in ${CODIUM_EXTENSIONS[@]}; do
 	codium --install-extension $ext
 done
@@ -197,7 +156,13 @@ kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl &&
 	helm completion bash | sudo tee /etc/bash_completion.d/helm &&
 	register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
 
-echo "export ANSIBLE_VAULT_PASSWORD_FILE=~/.vlt" >> ~/.bashrc
+sudo systemctl disable --now dnsmasq
+
+cat <<EOF | sudo tee /etc/NetworkManager/conf.d/dns.conf
+[main]
+dns=dnsmasq
+EOF
+
 [ -f /etc/network/interfaces ] &&
 	sudo mv /etc/network/interfaces /etc/network/interfaces.bak &&
 	sudo systemctl restart NetworkManager &&
