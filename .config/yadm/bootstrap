@@ -89,7 +89,7 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.gpg
 EOF
 
-sudo apt update --yes && sudo apt install -t trixie-backports --yes \
+sudo apt update --yes && sudo apt install --yes \
 	bash-completion \
 	ca-certificates \
 	codium \
