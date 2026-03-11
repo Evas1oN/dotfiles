@@ -8,7 +8,7 @@ set -o errexit
 
 echo "APT::Install-Recommends \"false\";" | sudo tee /etc/apt/apt.conf.d/90recommends
 
-apt update -y && apt install gpg curl ca-certificates -y
+sudo apt update -y && sudo apt install gpg curl ca-certificates -y
 
 curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg | sudo gpg --yes --dearmor --output /etc/apt/keyrings/packages.mozilla.org.gpg
 
