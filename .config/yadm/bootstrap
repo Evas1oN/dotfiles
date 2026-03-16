@@ -154,9 +154,7 @@ for ext_url in ${CODIUM_EXTERNAL_EXTENSIONS[@]}; do
 	codium --install-extension /tmp/$(basename $ext_url)
 done
 
-kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl &&
-	helm completion bash | sudo tee /etc/bash_completion.d/helm &&
-	register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
+register-python-argcomplete --shell bash pipx | sudo tee /etc/bash_completion.d/pipx
 
 sudo systemctl disable --now dnsmasq
 
