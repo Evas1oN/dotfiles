@@ -50,26 +50,6 @@ Architectures: amd64
 Signed-By: /etc/apt/keyrings/oracle-virtualbox-2016.gpg
 EOF
 
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --yes --dearmor --output /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-
-cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.sources
-Types: deb
-URIs: https://pkgs.k8s.io/core:/stable:/v1.34/deb/
-Suites: /
-Architectures: amd64
-Signed-By: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-EOF
-
-curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | sudo gpg --yes --dearmor --output /etc/apt/keyrings/helm.gpg
-
-cat <<EOF | sudo tee /etc/apt/sources.list.d/helm.sources
-Types: deb
-URIs: https://packages.buildkite.com/helm-linux/helm-debian/any/
-Suites: any
-Components: main
-Signed-By: /etc/apt/keyrings/helm.gpg
-EOF
-
 curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key | sudo gpg --yes --dearmor --output /etc/apt/keyrings/dbeaver.gpg
 
 cat <<EOF | sudo tee /etc/apt/sources.list.d/dbeaver.sources
@@ -77,16 +57,6 @@ Types: deb
 URIs: https://dbeaver.io/debs/dbeaver-ce
 Suites: /
 Signed-By: /etc/apt/keyrings/dbeaver.gpg
-EOF
-
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --yes --dearmor --output /etc/apt/keyrings/docker.gpg
-
-cat <<EOF | sudo tee /etc/apt/sources.list.d/docker.sources
-Types: deb
-URIs: https://download.docker.com/linux/debian
-Suites: trixie
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.gpg
 EOF
 
 sudo apt update --yes && sudo apt install --yes \
