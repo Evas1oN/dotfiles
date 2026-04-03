@@ -86,11 +86,13 @@ sudo apt update --yes && sudo apt install --yes \
 	gnome-software-plugin-flatpak \
 	gnome-tweaks \
 	gnome-keyring \
+	libpam-gnome-keyring \
 	libgnome-menu-3-dev \
 	libreoffice-calc \
 	libreoffice-writer \
 	linux-headers-amd64 \
 	linux-image-amd64 \
+	libopengl0 \
 	make \
 	network-manager \
 	network-manager-gnome \
