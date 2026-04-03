@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o errexit
+set -euo pipefail
 
 [ $(id -u) -eq 0 ] && {
 	echo "You should not run this as root user"
